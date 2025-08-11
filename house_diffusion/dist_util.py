@@ -28,8 +28,11 @@ def setup_dist():
     #os.environ["CUDA_VISIBLE_DEVICES"] = f"{MPI.COMM_WORLD.Get_rank() % GPUS_PER_NODE}"
 
     comm = MPI.COMM_WORLD
+    # HT------------------
     backend = "gloo" if not th.cuda.is_available() else "nccl"
-
+    # -----------------TH
+    backend = "gloo"
+    
     if backend == "gloo":
         hostname = "localhost"
     else:
@@ -81,7 +84,10 @@ def sync_params(params):
     """
     for p in params:
         with th.no_grad():
-            dist.broadcast(p, 0)
+            # dist.broadcast(p, 0)
+            # HT----------------
+            dist.broadcast(p.detach(), 0)
+            # ----------------TH
 
 
 def _find_free_port():

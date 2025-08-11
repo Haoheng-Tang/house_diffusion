@@ -5,6 +5,7 @@ numpy array. This can be used to produce samples for FID evaluation.
 
 import argparse
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import numpy as np
 import torch as th
@@ -31,7 +32,12 @@ import networkx as nx
 from collections import defaultdict
 from shapely.geometry import Polygon
 from shapely.geometry.base import geom_factory
-from shapely.geos import lgeos
+# from shapely.geos import lgeos
+# HT----------------
+from shapely.validation import make_valid
+from shapely.validation import explain_validity
+from torchvision.utils import save_image
+# -----------------HT
 
 # import random
 # th.manual_seed(0)
@@ -137,9 +143,21 @@ def estimate_graph(indx, polys, nodes, G_gt, ID_COLOR, draw_graph, save_svg):
                 p1, p2 = polys[k], polys[l]
                 p1, p2 = Polygon(p1), Polygon(p2)
                 if not p1.is_valid:
-                    p1 = geom_factory(lgeos.GEOSMakeValid(p1._geom))
+                    # p1 = geom_factory(lgeos.GEOSMakeValid(p1._geom))
+                    # HT-----------------------
+                    print(f"p1 before validation: {p1}")
+                    if isinstance(p1, int):
+                        print("Error: p1 is an integer, expected a Shapely geometry object.")
+                    print(f"Polygon issue: {explain_validity(p1)}")
+                    continue
+                    # p1 = geom_factory(make_valid(p1._geom))
+                    # ------------------------HT
                 if not p2.is_valid:
-                    p2 = geom_factory(lgeos.GEOSMakeValid(p2._geom))
+                    # p2 = geom_factory(lgeos.GEOSMakeValid(p2._geom))
+                    # HT-----------------------
+                    # p2 = geom_factory(make_valid(p2._geom))
+                    continue
+                    # ------------------------HT
                 iou = p1.intersection(p2).area/ p1.union(p2).area
                 if iou > 0 and iou < 0.2:
                     doors_rooms_map[k].append((l, iou))

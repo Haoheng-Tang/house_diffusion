@@ -29,6 +29,12 @@ def load_rplanhg_data(
     print(f"loading {set_name} of target set {target_set}")
     deterministic = False if set_name=='train' else True
     dataset = RPlanhgDataset(set_name, analog_bit, target_set)
+    # HT-----------------
+    print(f"Dataset size: {len(dataset)}")
+    if len(dataset) == 0:
+        print("Error: The dataset is empty.")
+        return
+    # -----------------TH
     if deterministic:
         loader = DataLoader(
             dataset, batch_size=batch_size, shuffle=False, num_workers=2, drop_last=False
@@ -114,15 +120,24 @@ class RPlanhgDataset(Dataset):
                 self.syn_self_masks = data['self_masks']
                 self.syn_gen_masks = data['gen_masks']
         else:
-            with open(f'{base_dir}/list.txt') as f:
+            # with open(f'{base_dir}/list.txt') as f:
+            # HT---------------------
+            with open("./datasets/rplan/list.txt") as f:
+            # ---------------------HT
                 lines = f.readlines()
             cnt=0
             for line in tqdm(lines):
                 cnt=cnt+1
-                file_name = f'{base_dir}/{line[:-1]}'
+                # file_name = f'{base_dir}/{line[:-1]}'
+                # HT----------
+                file_name = f'./datasets/rplan/{line[:-1]}'
+                # -----------TH
                 rms_type, fp_eds,rms_bbs,eds_to_rms=reader(file_name) 
                 fp_size = len([x for x in rms_type if x != 15 and x != 17])
-                if self.set_name=='train' and fp_size == target_set:
+                # if self.set_name=='train' and fp_size == target_set:
+                # HT-----------------
+                if self.set_name=='train' and fp_size != target_set:
+                # -----------------TH
                         continue
                 if self.set_name=='eval' and fp_size != target_set:
                         continue
