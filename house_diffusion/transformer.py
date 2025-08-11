@@ -143,7 +143,10 @@ class TransformerModel(nn.Module):
         self.condition_emb = nn.Linear(self.condition_channels, self.model_channels)
 
         if use_unet:
-            self.unet = UNet(self.model_channels, 1)
+            # self.unet = UNet(self.model_channels, 1)
+            # HT------------
+            print("UNet is not supported in this implementation of house diffusion.")
+            # -------------TH
 
         self.transformer_layers = nn.ModuleList([EncoderLayer(self.model_channels, 4, 0.1, self.activation) for x in range(self.num_layers)])
         # self.transformer_layers = nn.ModuleList([nn.TransformerEncoderLayer(self.model_channels, 4, self.model_channels*2, 0.1, self.activation, batch_first=True) for x in range(self.num_layers)])
